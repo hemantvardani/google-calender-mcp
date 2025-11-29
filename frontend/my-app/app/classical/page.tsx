@@ -19,6 +19,7 @@ import { useSearchParams, useRouter, redirect } from "next/navigation";
 import { useApiKey } from "@/contexts/ApiKeyContext";
 import { checkCalenderConnectionStatus } from "@/lib/calender";
 import { toast } from "sonner";
+import ConnectButton from "@/components/ConnectButton";
 
 interface Booking {
   id: string;
@@ -151,17 +152,13 @@ function FixedContent() {
     <div className="container mx-auto p-4 md:p-8 max-w-6xl w-full overflow-x-hidden">
       <h1 className="text-3xl font-bold mb-8 text-center">{heading}</h1>
 
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-800">{error}</p>
-        </div>
-      )}
 
       {!isConnected && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between gap-4">
           <p className="text-yellow-800 text-sm">
             ⚠️ Please connect your Google Calendar first to fetch bookings.
           </p>
+          <ConnectButton />
         </div>
       )}
       

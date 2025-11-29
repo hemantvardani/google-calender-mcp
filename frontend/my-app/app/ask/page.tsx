@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Send, Loader2, Bot, User } from "lucide-react";
 import { checkCalenderConnectionStatus } from "@/lib/calender";
 import ReactMarkdown from "react-markdown";
+import ConnectButton from "@/components/ConnectButton";
 
 interface Message {
   id: string;
@@ -134,10 +135,11 @@ export default function AskPage() {
       </div>
 
       {!isConnected && (
-        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between gap-4">
           <p className="text-yellow-800 text-sm">
             ⚠️ Please connect your Google Calendar first to ask questions.
           </p>
+          <ConnectButton />
         </div>
       )}
 

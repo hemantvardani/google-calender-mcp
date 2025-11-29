@@ -23,6 +23,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 function ListItem({
   title,
@@ -46,13 +48,23 @@ function ListItem({
 
 export function Header() {
   const { apiKey, setApiKey } = useApiKey();
+  const pathname = usePathname();
+  
+  const isClassicalActive = pathname?.startsWith('/classical');
+  const isAskActive = pathname === '/ask';
 
   return (
     <header className="relative flex justify-center h-20 gap-2.5 items-center">
       <NavigationMenu className="z-1">
         <NavigationMenuList className="flex-wrap">
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Classical</NavigationMenuTrigger>
+            <NavigationMenuTrigger 
+              className={cn(
+                isClassicalActive && "bg-accent text-accent-foreground"
+              )}
+            >
+              Classical
+            </NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="grid gap-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                 <li className="row-span-3">
@@ -80,7 +92,13 @@ export function Header() {
           </NavigationMenuItem>
 
           <NavigationMenuItem>
-            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <NavigationMenuLink 
+              asChild 
+              className={cn(
+                navigationMenuTriggerStyle(),
+                isAskActive && "bg-accent text-accent-foreground"
+              )}
+            >
               <Link href="/ask">Ask thing</Link>
             </NavigationMenuLink>
           </NavigationMenuItem>

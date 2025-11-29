@@ -5,23 +5,29 @@ import { checkCalenderConnectionStatus } from "@/lib/calender";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function ConnectButton() {
+interface ConnectButtonProps {
+  autoCheck?: boolean; // If true, auto-check connection on mount and redirect
+}
+
+export default function ConnectButton({ autoCheck = false }: ConnectButtonProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const init = async () => {
-    setLoading(true);
-    const isConnected = await checkCalenderConnectionStatus();
-    setLoading(false);
-
-    if(isConnected){
-      router.push("/classical?type=future&limit=1");
-    }
-  }
-
   useEffect(() => {
+    const init = async () => {
+      if (!autoCheck) return;
+      
+      setLoading(true);
+      const isConnected = await checkCalenderConnectionStatus();
+      setLoading(false);
+
+      if(isConnected){
+        router.push("/classical?type=future&limit=1");
+      }
+    };
+
     init();
-  }, []);
+  }, [autoCheck, router]);
 
   const handleConnect = async () => {
     setLoading(true);
