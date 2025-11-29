@@ -41,19 +41,33 @@ function FixedContent() {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generatingSummary, setGeneratingSummary] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   // Check connection status on mount
   useEffect(() => {
-    // Check for OAuth callback success/error
+    const checkConnection = async () => {
+      const connected = await checkCalenderConnectionStatus();
+      setIsConnected(connected);
+      if (!connected) {
+        setError("Please connect your Google Calendar first.");
+      }
+    };
+    checkConnection();
+  }, []);
+
+  // Check for OAuth callback success/error
+  useEffect(() => {
     const connected = searchParams.get('connected');
     const errorParam = searchParams.get('error');
     if (connected === 'true') {
       setError(null);
+      setIsConnected(true);
       // Clean URL
       router.replace('/classical?type=' + type);
     }
     if (errorParam || connected == 'false') {
-      redirect("/")
+      setIsConnected(false);
+      setError("Failed to connect Google Calendar. Please try again.");
     }
   }, [searchParams, router, type]);
 
@@ -134,12 +148,20 @@ function FixedContent() {
   const heading = type === "future" ? "Upcoming Bookings" : "Past Bookings";
 
   return (
-    <div className="container mx-auto p-8 max-w-6xl">
+    <div className="container mx-auto p-4 md:p-8 max-w-6xl w-full overflow-x-hidden">
       <h1 className="text-3xl font-bold mb-8 text-center">{heading}</h1>
 
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-red-800">{error}</p>
+        </div>
+      )}
+
+      {!isConnected && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-yellow-800 text-sm">
+            ⚠️ Please connect your Google Calendar first to fetch bookings.
+          </p>
         </div>
       )}
       
@@ -174,15 +196,15 @@ function FixedContent() {
           variant="outline" 
           className="w-32" 
           onClick={handleFetch}
-          disabled={loading }
+          disabled={loading || !isConnected}
         >
           {loading ? "Loading..." : "Fetch"}
         </Button>
       </div>
 
-      {bookings && bookings.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300">
+          {bookings && bookings.length > 0 && (
+            <div className="overflow-x-auto w-full">
+              <table className="w-full border-collapse border border-gray-300 min-w-full">
             <thead>
               <tr className="bg-gray-100">
                 <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Title</th>
@@ -201,19 +223,23 @@ function FixedContent() {
                   <td className="border border-gray-300 px-4 py-3">{booking.title}</td>
                   <td className="border border-gray-300 px-4 py-3">{booking.time}</td>
                   <td className="border border-gray-300 px-4 py-3">{booking.duration}</td>
-                  <td className="border border-gray-300 px-4 py-3">
-                    {booking.attendees.join(", ")}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-3">
-                    {booking.description || "-"}
-                  </td>
-                  {type === 'past' && (
-                    <td className="border border-gray-300 px-4 py-3">
-                      {booking.summary ? (
-                        <div className="text-sm text-gray-700 max-w-md">
-                          {booking.summary}
+                      <td className="border border-gray-300 px-4 py-3 max-w-xs break-words">
+                        <div className="text-sm">
+                          {booking.attendees.join(", ")}
                         </div>
-                      ) : (
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 max-w-xs break-words">
+                        <div className="text-sm truncate" title={booking.description || "-"}>
+                          {booking.description || "-"}
+                        </div>
+                      </td>
+                      {type === 'past' && (
+                        <td className="border border-gray-300 px-4 py-3 max-w-md">
+                          {booking.summary ? (
+                            <div className="text-sm text-gray-700 break-words">
+                              {booking.summary}
+                            </div>
+                          ) : (
                         <Button
                           size="sm"
                           variant="outline"
