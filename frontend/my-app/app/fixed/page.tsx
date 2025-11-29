@@ -2,9 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, Suspense, useEffect } from "react";
+import { useSearchParams, useRouter, redirect } from "next/navigation";
 import { useApiKey } from "@/contexts/ApiKeyContext";
+import { checkCalenderConnectionStatus } from "@/lib/calender";
 
 interface Booking {
   id: string;
@@ -17,34 +18,51 @@ interface Booking {
 
 function FixedContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const type: "future" | "past" = (searchParams.get("type") || "future") as "future" | "past";
-  const { apiKey } = useApiKey(); // Get API key from context
+  const { apiKey } = useApiKey();
   const [numBookings, setNumBookings] = useState<number>(5);
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<Booking[]| null>(null);
   const [loading, setLoading] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleFetch = () => {
-    if (!apiKey) {
-      alert("Please enter your OpenAI API key in the header");
-      return;
+  // Check connection status on mount
+  useEffect(() => {
+    // Check for OAuth callback success/error
+    const connected = searchParams.get('connected');
+    const errorParam = searchParams.get('error');
+    if (connected === 'true') {
+      setError(null);
+      // Clean URL
+      router.replace('/fixed?type=' + type);
     }
-    
+    if (errorParam || connected == 'false') {
+      redirect("/")
+    }
+  }, [searchParams, router, type]);
+
+  const handleFetch = async () => {
+    setBookings([]);
+ 
     setLoading(true);
+    setError(null);
     
-    
-    setTimeout(() => {
-      setBookings([
-        {
-          id: "1",
-          title: "Team Meeting",
-          time: "2024-01-15 10:00 AM",
-          duration: "1 hour",
-          attendees: ["John Doe", "Jane Smith"],
-          description: "Weekly team sync"
-        }
-      ]);
+    try {
+      const response = await fetch(`/api/bookings?type=${type}&limit=${numBookings}`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch bookings');
+      }
+      
+      setBookings(data.bookings || []);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch bookings');
+      setBookings([]);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const heading = type === "future" ? "Upcoming Bookings" : "Past Bookings";
@@ -52,6 +70,12 @@ function FixedContent() {
   return (
     <div className="container mx-auto p-8 max-w-6xl">
       <h1 className="text-3xl font-bold mb-8 text-center">{heading}</h1>
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800">{error}</p>
+        </div>
+      )}
       
       <div className="flex w-full justify-center gap-5 mb-8">
         <Input 
@@ -67,13 +91,13 @@ function FixedContent() {
           variant="outline" 
           className="w-32" 
           onClick={handleFetch}
-          disabled={loading}
+          disabled={loading }
         >
           {loading ? "Loading..." : "Fetch"}
         </Button>
       </div>
 
-      {bookings.length > 0 && (
+      {bookings && bookings.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse border border-gray-300">
             <thead>
@@ -104,9 +128,9 @@ function FixedContent() {
         </div>
       )}
 
-      {bookings.length === 0 && !loading && (
+      {bookings && bookings.length === 0 && !loading && (
         <div className="text-center text-gray-500 mt-8">
-          No bookings found. Click "Fetch" to load {numBookings} {type === "future" ? "upcoming" : "past"} bookings.
+          No bookings found.
         </div>
       )}
     </div>
