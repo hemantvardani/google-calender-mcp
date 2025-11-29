@@ -72,6 +72,9 @@ function FixedContent() {
     }
   }, [searchParams, router, type]);
 
+  useEffect(()=>{
+    setBookings(null);
+  },[type])
   const handleFetch = async () => {
     setBookings([]);
  
