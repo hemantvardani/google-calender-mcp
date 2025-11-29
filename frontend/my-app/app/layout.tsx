@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ApiKeyProvider } from "@/contexts/ApiKeyContext";
 import { Header } from "@/components/Header";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <ApiKeyProvider>
           <Header />
           {children}
+          <Toaster />
         </ApiKeyProvider>
       </body>
     </html>

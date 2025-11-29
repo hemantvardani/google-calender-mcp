@@ -14,7 +14,7 @@ export default function ConnectButton() {
     setLoading(false);
 
     if(isConnected){
-      redirect("/fixed?type=future&limit=1")
+      redirect("/classical?type=future&limit=1")
     }
   }
 

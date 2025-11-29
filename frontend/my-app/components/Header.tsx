@@ -69,10 +69,10 @@ export function Header() {
                     </div>
                   </ >
                 </li>
-                <ListItem href="/fixed?type=future" title="Fetch upcoming bookings">
+                <ListItem href="/classical?type=future" title="Fetch upcoming bookings">
                   Get latest N future schedule updates
                 </ListItem>
-                <ListItem href="/fixed?type=past" title="Fetch past bookings">
+                <ListItem href="/classical?type=past" title="Fetch past bookings">
                   Get latest N past schedule updates
                 </ListItem>
               </ul>
@@ -107,7 +107,7 @@ export function Header() {
               </InputGroupAddon>
             </TooltipTrigger>
             <TooltipContent side="left">
-              <p>Enter your Open-AI Api key for fetching data</p>
+              <p>Enter your Open-AI Api key for generating summary and asking questions</p>
             </TooltipContent>
           </Tooltip>
         </InputGroup>

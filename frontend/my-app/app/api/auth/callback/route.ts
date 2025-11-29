@@ -30,10 +30,10 @@ export async function GET(request: Request) {
 
       // Clean up connection request cookie
       cookieStore.delete('composio_connection_request_id');
-      console.log('[CALLBACK API] Cookies set, redirecting to /fixed');
+      console.log('[CALLBACK API] Cookies set, redirecting to /classical');
 
-      // Redirect back to fixed page
-      return NextResponse.redirect(new URL('/fixed?type=future&connected=true', request.url));
+      // Redirect back to classical page
+      return NextResponse.redirect(new URL('/classical?type=future&connected=true', request.url));
     }
 
     // Fallback: Try to get connection_request_id from URL (old method)
@@ -63,8 +63,8 @@ export async function GET(request: Request) {
           });
 
           cookieStore.delete('composio_connection_request_id');
-          console.log('[CALLBACK API] Cookies set, redirecting to /fixed');
-          return NextResponse.redirect(new URL('/fixed?type=future&connected=true', request.url));
+          console.log('[CALLBACK API] Cookies set, redirecting to /classical');
+          return NextResponse.redirect(new URL('/classical?type=future&connected=true', request.url));
         }
       }
     }
@@ -72,15 +72,15 @@ export async function GET(request: Request) {
     // If we get here, something went wrong
     console.log('[CALLBACK API] Error: Missing required parameters');
     if (!userId) {
-      return NextResponse.redirect(new URL('/fixed?type=future&error=missing_user', request.url));
+      return NextResponse.redirect(new URL('/classical?type=future&error=missing_user', request.url));
     }
 
-    return NextResponse.redirect(new URL('/fixed?type=future&error=not_connected', request.url));
+    return NextResponse.redirect(new URL('/classical?type=future&error=not_connected', request.url));
   } catch (error: any) {
     console.error('[CALLBACK API] Error:', error);
     console.error('[CALLBACK API] Error stack:', error.stack);
     console.error('[CALLBACK API] Error message:', error.message);
-    return NextResponse.redirect(new URL('/fixed?type=future&error=callback_failed', request.url));
+    return NextResponse.redirect(new URL('/classical?type=future&error=callback_failed', request.url));
   }
 }
 
